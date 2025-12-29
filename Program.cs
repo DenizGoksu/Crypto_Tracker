@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-//Kütüphaneler 
 
 class Program
 {
@@ -10,33 +9,40 @@ class Program
     {
         using (HttpClient client = new HttpClient())
         {
-            try
+            Console.WriteLine("🚀 Kripto Takip Başlatılıyor... Durdurmak için Ctrl+C tuşlarına basabilirsin.");
+            
+            // Sonsuz döngü: Sen kapatana kadar devam eder
+            while (true) 
             {
-                // CoinGecko API'sinden popüler coinleri çekiyoruz
-                string url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,ripple,binancecoin&vs_currencies=usd";
+                try
+                {
+                    string url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,ripple,binancecoin&vs_currencies=usd";
+                    
+                    string response = await client.GetStringAsync(url);
+                    JObject data = JObject.Parse(response);
 
-                Console.WriteLine("🌐 Kripto borsasına bağlanılıyor...");
-                string response = await client.GetStringAsync(url);
-                JObject data = JObject.Parse(response);
+                    Console.Clear(); // Her güncellemede ekranı temizle ki alt alta binmesin
+                    Console.WriteLine("======================================");
+                    Console.WriteLine("      📊 CANLI KRİPTO PANELİ (10s)    ");
+                    Console.WriteLine("======================================");
+                    Console.WriteLine($" 🕒 Son Güncelleme: {DateTime.Now:HH:mm:ss}");
+                    Console.WriteLine("--------------------------------------");
+                    Console.WriteLine($" 🟡 BTC : ${data["bitcoin"]["usd"]}");
+                    Console.WriteLine($" 🔵 ETH : ${data["ethereum"]["usd"]}");
+                    Console.WriteLine($" 🟣 SOL : ${data["solana"]["usd"]}");
+                    Console.WriteLine($" ⚪ XRP : ${data["ripple"]["usd"]}");
+                    Console.WriteLine($" 🔶 BNB : ${data["binancecoin"]["usd"]}");
+                    Console.WriteLine("======================================");
+                    Console.WriteLine(" Çıkmak için terminali kapat veya Ctrl+C yap.");
 
-                Console.Clear(); // Ekranı temizle ki sadece liste görünsün
-                Console.WriteLine("======================================");
-                Console.WriteLine("         CANLI KRİPTO TAKİP           ");
-                Console.WriteLine("======================================");
-                Console.WriteLine($" 🕒 Güncelleme: {DateTime.Now:HH:mm:ss}");
-                Console.WriteLine("--------------------------------------");
-                Console.WriteLine($" 🟡 BTC (Bitcoin)  : ${data["bitcoin"]["usd"]}");
-                Console.WriteLine($" 🔵 ETH (Ethereum) : ${data["ethereum"]["usd"]}");
-                Console.WriteLine($" 🟣 SOL (Solana)   : ${data["solana"]["usd"]}");
-                Console.WriteLine($" ⚪ XRP (Ripple)   : ${data["ripple"]["usd"]}");
-                Console.WriteLine($" 🔶 BNB (Binance)  : ${data["binancecoin"]["usd"]}");
-                Console.WriteLine("======================================");
-                Console.WriteLine("\nKapatmak için 'Enter' tuşuna basın...");
-                Console.ReadLine();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Bir hata oluştu: " + ex.Message);
+                    // 10.000 milisaniye (yani 10 saniye) bekle
+                    await Task.Delay(10000); 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("\nBağlantı hatası! 10 saniye sonra tekrar denenecek...");
+                    await Task.Delay(10000);
+                }
             }
         }
     }
